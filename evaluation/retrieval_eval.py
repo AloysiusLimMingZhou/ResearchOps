@@ -33,6 +33,12 @@ def evaluate(retriever:Retriever, dataset_path:str):
         expected_pages = sample["expected_pages"] # Relevant page of filename for user query
         relevant_ranks = []
 
+        print()
+        print("=" * 60)
+        print(f"QUERY: {sample['question']}")
+        print(f"EXPECTED FILE: {expected_filename}")
+        print(f"EXPECTED PAGES: {expected_pages}")
+
         for rank, result in enumerate(results, start=1): # Start loop at 1
             if is_relevant(result, expected_filename, expected_pages): # If the retrieved chunk from vector DB is relevant to the user query, we append the chunk into ranks. We determine if the chunk is relevant by providing the expected page and document that the vector DB should retrieve
                 relevant_ranks.append(rank)
@@ -66,16 +72,16 @@ def evaluate(retriever:Retriever, dataset_path:str):
             first_relevant_rank = min(relevant_ranks)
             reciprocal_rank_sum += (1 / first_relevant_rank)
 
-        # Average over all queries
-        total = len(dataset)
-        for k in K_VALUES:
-            print(f"Hit@{k}: {hit_sums[k] / total:.3f}")
-
-            print(
-                f"Precision@{k}: {precision_sums[k] / total:.3f}")
-
-            print(
-                f"PageRecall@{k}: {page_recall_sums[k] / total:.3f}")
+    # Average over all queries
+    total = len(dataset)
+    for k in K_VALUES:
+        print(f"Hit@{k}: {hit_sums[k] / total:.3f}")
 
         print(
-            f"MRR: {reciprocal_rank_sum / total:.3f}")
+            f"Precision@{k}: {precision_sums[k] / total:.3f}")
+
+        print(
+            f"PageRecall@{k}: {page_recall_sums[k] / total:.3f}")
+
+    print(
+        f"MRR: {reciprocal_rank_sum / total:.3f}")

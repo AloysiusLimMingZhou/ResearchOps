@@ -1,17 +1,177 @@
 [
   {
-    "question": "What optimizer was used during training?",
-    "expected_filename": "attention.pdf",
-    "expected_pages": [8]
+    "question": "What architecture do the authors propose instead of recurrent and convolutional neural networks?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [1],
+    "category": "architecture",
+    "difficulty": "easy"
   },
   {
-    "question": "How does multi-head attention work?",
-    "expected_filename": "attention.pdf",
-    "expected_pages": [4, 5]
+    "question": "Why are recurrent neural networks difficult to parallelize during training?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [2],
+    "category": "motivation",
+    "difficulty": "medium"
   },
   {
-    "question": "What positional encoding method is used?",
-    "expected_filename": "attention.pdf",
-    "expected_pages": [6]
+    "question": "How does the Transformer handle long-range dependencies without recurrence?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [2],
+    "category": "motivation",
+    "difficulty": "medium"
+  },
+  {
+    "question": "How many layers are used in the Transformer encoder?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [3],
+    "category": "architecture",
+    "difficulty": "easy"
+  },
+  {
+    "question": "How does the decoder prevent a position from attending to future output positions?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [3, 5],
+    "category": "architecture",
+    "difficulty": "medium"
+  },
+  {
+    "question": "How is scaled dot-product attention calculated?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [4],
+    "category": "attention",
+    "difficulty": "easy"
+  },
+  {
+    "question": "Why are the attention dot products divided by the square root of the key dimension?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [4],
+    "category": "attention",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Why is multi-head attention useful?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [4, 5],
+    "category": "attention",
+    "difficulty": "medium"
+  },
+  {
+    "question": "How many attention heads are used in the base Transformer model?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [5],
+    "category": "attention",
+    "difficulty": "easy"
+  },
+  {
+    "question": "What are the three ways multi-head attention is used inside the Transformer?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [5],
+    "category": "attention",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What activation function is used inside the position-wise feed-forward network?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [5],
+    "category": "architecture",
+    "difficulty": "easy"
+  },
+  {
+    "question": "What are the input and hidden dimensions of the position-wise feed-forward network?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [5],
+    "category": "architecture",
+    "difficulty": "easy"
+  },
+  {
+    "question": "How does the Transformer represent the positions of tokens in the sequence?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [6],
+    "category": "positional_encoding",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Why did the authors choose sinusoidal positional encodings?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [6],
+    "category": "positional_encoding",
+    "difficulty": "medium"
+  },
+  {
+    "question": "How did learned positional embeddings compare with sinusoidal positional encodings?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [6, 9],
+    "category": "positional_encoding",
+    "difficulty": "hard"
+  },
+  {
+    "question": "Why can self-attention make learning long-range dependencies easier?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [6, 7],
+    "category": "self_attention",
+    "difficulty": "hard"
+  },
+  {
+    "question": "What datasets were used to train the English-German and English-French translation models?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [7],
+    "category": "training",
+    "difficulty": "easy"
+  },
+  {
+    "question": "What hardware was used to train the Transformer models?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [7],
+    "category": "training",
+    "difficulty": "easy"
+  },
+  {
+    "question": "What optimizer did they use?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [7],
+    "category": "training",
+    "difficulty": "easy"
+  },
+  {
+    "question": "What learning algorithm did they use to update the model parameters?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [7],
+    "category": "training",
+    "difficulty": "hard"
+  },
+  {
+    "question": "How was the learning rate changed during training?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [7],
+    "category": "training",
+    "difficulty": "medium"
+  },
+  {
+    "question": "How many warmup steps were used for the learning rate schedule?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [7],
+    "category": "training",
+    "difficulty": "easy"
+  },
+  {
+    "question": "What regularization techniques were used when training the Transformer?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [7, 8],
+    "category": "training",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What beam size and length penalty were used for machine translation inference?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [8],
+    "category": "inference",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What happened when the number of attention heads was changed?",
+    "expected_filename": "attention_is_all_you_need.pdf",
+    "expected_pages": [9],
+    "category": "ablation",
+    "difficulty": "hard"
   }
 ]

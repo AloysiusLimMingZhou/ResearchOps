@@ -21,7 +21,7 @@ class Retriever:
                 SearchResults(
                     chunk_id=str(point.id), # point.id = chunk.chunk_id from vector_store.py
                     document_id=payload["document_id"],
-                    filename=payload["document_id"],
+                    filename=payload["filename"],
                     page_number=payload["page_number"],
                     text=payload["text"],
                     score=point.score
