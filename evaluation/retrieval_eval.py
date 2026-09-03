@@ -38,10 +38,15 @@ def evaluate(retriever:Retriever, dataset_path:str):
         print(f"QUERY: {sample['question']}")
         print(f"EXPECTED FILE: {expected_filename}")
         print(f"EXPECTED PAGES: {expected_pages}")
+        print()
 
         for rank, result in enumerate(results, start=1): # Start loop at 1
-            if is_relevant(result, expected_filename, expected_pages): # If the retrieved chunk from vector DB is relevant to the user query, we append the chunk into ranks. We determine if the chunk is relevant by providing the expected page and document that the vector DB should retrieve
+            relevant = is_relevant(result, expected_filename, expected_pages) # If the retrieved chunk from vector DB is relevant to the user query, we append the chunk into ranks. We determine if the chunk is relevant by providing the expected page and document that the vector DB should retrieve
+            if relevant:
                 relevant_ranks.append(rank)
+            marker = "✅" if relevant else "❌"
+            print(f"#{rank} | Page {result.page_number} | Score: {result.score:.4f} | {marker}")
+            print(f"Relevant Ranks: {relevant_ranks}")
 
         for k in K_VALUES: # Loop through k = 1, k = 3, k = 5
             top_k_results = results[:k] # Get the top_1, top_3, top_5 results by slicing result list (i.e. k = 1, results[:1])
@@ -70,10 +75,23 @@ def evaluate(retriever:Retriever, dataset_path:str):
         # Reciprocal Rank
         if relevant_ranks:
             first_relevant_rank = min(relevant_ranks)
-            reciprocal_rank_sum += (1 / first_relevant_rank)
+            reciprocal_rank = (1 / first_relevant_rank)
+            reciprocal_rank_sum += reciprocal_rank
+
+            print(f"First relevant rank: {first_relevant_rank}")
+            print(f"Reciprocal Rank: {reciprocal_rank:.3f}")
+
+        else:
+            print(f"First relevant rank: None")
+            print(f"Reciprocal Rank: 0.000")
 
     # Average over all queries
     total = len(dataset)
+    print()
+    print("=" * 60)
+    print("OVERALL RESULTS")
+    print("=" * 60)
+
     for k in K_VALUES:
         print(f"Hit@{k}: {hit_sums[k] / total:.3f}")
 

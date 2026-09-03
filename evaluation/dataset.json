@@ -16,7 +16,7 @@
   {
     "question": "How does the Transformer handle long-range dependencies without recurrence?",
     "expected_filename": "attention_is_all_you_need.pdf",
-    "expected_pages": [2],
+    "expected_pages": [2, 6, 7],
     "category": "motivation",
     "difficulty": "medium"
   },
