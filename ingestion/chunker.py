@@ -1,13 +1,13 @@
-import hashlib
 import uuid
 from transformers import AutoTokenizer
 from model.schema import Chunk, Document
+from embeddings.embedder import Embedder
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_experimental.text_splitter import SemanticChunker
 
 class TokenChunker:
-    def __init__(self, tokenizer_name:str, chunk_size:int = 384, overlap:int = 64): # Define chunking strategy
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            tokenizer_name
-        )
+    def __init__(self, tokenizer_name:str, chunk_size:int = 256, overlap:int = 64): # Define chunking strategy
+        self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
         self.chunk_size = chunk_size
         self.overlap = overlap
 
@@ -62,3 +62,78 @@ class TokenChunker:
             f"{chunk_index}"
         )
         return str(uuid.uuid5(uuid.NAMESPACE_DNS, value))
+
+class RecursiveChunker:
+    def __init__(self, tokenizer_name:str, chunk_size:int = 256, overlap:int = 64):
+        tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
+        self.splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(tokenizer=tokenizer, chunk_size=chunk_size, chunk_overlap=overlap, separators=["\n\n", "\n", " ", ""])
+
+    def chunk_document(self, document:Document) -> list[Chunk]:
+        chunks = []
+        global_chunk_index = 0
+
+        for page in document.pages:
+            chunk_texts = self.splitter.split_text(page.text)
+            for chunk_text in chunk_texts:
+                chunk_id = self._generate_chunk_id(document_id=document.document_id, page_number=page.page_number, chunk_index=global_chunk_index)
+                chunks.append(
+                    Chunk(
+                        chunk_id=chunk_id,
+                        document_id=document.document_id,
+                        filename=document.filename,
+                        page_number=page.page_number,
+                        chunk_index=global_chunk_index,
+                        text=chunk_text
+                    )
+                )
+                global_chunk_index += 1
+
+        return chunks
+
+    def _generate_chunk_id(self, document_id:str, page_number:int, chunk_index:int) -> str:
+        value = (
+            f"{document_id}:"
+            f"{page_number}:"
+            f"{chunk_index}"
+        )
+        return str(uuid.uuid5(uuid.NAMESPACE_DNS, value))
+
+class SemanticAwareChunker:
+    def __init__(self, embedder:Embedder, breakpoint_threshold_type:str = "percentile", breakpoint_threshold_amount:float =95.0, buffer_size:int = 1):
+        self.splitter = SemanticChunker(
+            embeddings=embedder, 
+            breakpoint_threshold_type=breakpoint_threshold_type, 
+            breakpoint_threshold_amount=breakpoint_threshold_amount, 
+            buffer_size=buffer_size
+        )
+
+    def chunk_document(self, document:Document) -> list[Chunk]:
+        chunks = []
+        global_chunk_index = 0
+
+        for page in document.pages:
+            chunk_texts = self.splitter.split_text(page.text)
+            for chunk_text in chunk_texts:
+                chunk_id = self._generate_chunk_id(document_id=document.document_id, page_number=page.page_number, chunk_index=global_chunk_index)
+                chunks.append(
+                    Chunk(
+                        chunk_id=chunk_id,
+                        document_id=document.document_id,
+                        filename=document.filename,
+                        page_number=page.page_number,
+                        chunk_index=global_chunk_index,
+                        text=chunk_text
+                    )
+                )
+                global_chunk_index += 1
+                
+        return chunks
+
+    def _generate_chunk_id(self, document_id:str, page_number:int, chunk_index:int) -> str:
+        value = (
+            f"{document_id}:"
+            f"{page_number}:"
+            f"{chunk_index}"
+        )
+        return str(uuid.uuid5(uuid.NAMESPACE_DNS, value))
+        

@@ -1,18 +1,35 @@
 import argparse
+import re
 from embeddings.embedder import Embedder
 from evaluation.retrieval_eval import evaluate
-from ingestion.chunker import TokenChunker
+from ingestion.chunker import TokenChunker, RecursiveChunker, SemanticAwareChunker
 from ingestion.cleaner import TextCleaner
 from ingestion.parser import PdfParser
 from retrieval.retriever import Retriever
 from retrieval.vector_store import VectorStore
 
+CHUNKING_STRATEGY = "semantic"
 EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
+CHUNK_SIZE = 256
+CHUNK_OVERLAP = 64
+
+def slugify(value:str) -> str:
+    value = value.lower()
+    value = re.sub(r"[^a-z0-9]+", "-", value)
+    return value.strip("-")
+
+def build_collection_name(chunking_strategy:str, chunk_size:int, chunk_overlap:int, embedding_model:str) -> str:
+    strategy = slugify(chunking_strategy)
+    model = slugify(embedding_model)
+
+    return f"researchops_{strategy}_chunk{chunk_size}_overlap{chunk_overlap}_{model}"
+
+COLLECTION_NAME = build_collection_name(chunking_strategy=CHUNKING_STRATEGY, chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP, embedding_model=EMBEDDING_MODEL)
 
 def build_components():
     embedder = Embedder(model_name=EMBEDDING_MODEL)
-    vector_store = VectorStore(collection_name="researchops")
-    vector_store.create_collection(vector_size=embedder.dimension) # Make sure vector DB has the same dimension size as the embedding model (i.e. 784 = 784)
+    vector_store = VectorStore(collection_name=COLLECTION_NAME)
+    vector_store.create_collection(vector_size=embedder.dimension) # Make sure vector DB has the same dimension size as the embedding model (i.e. 384 = 384)
     retriever = Retriever(embedder=embedder, vector_store=vector_store)
 
     return embedder, vector_store, retriever
@@ -21,11 +38,30 @@ def ingest(file_path:str):
     embedder, vector_store, _ = build_components()
     parser = PdfParser()
     cleaner = TextCleaner()
-    chunker = TokenChunker(
-        tokenizer_name=EMBEDDING_MODEL,
-        chunk_size=384,
-        overlap=64
-    )
+
+    if CHUNKING_STRATEGY == "fixed":
+        chunker = TokenChunker(
+            tokenizer_name=EMBEDDING_MODEL,
+            chunk_size=CHUNK_SIZE,
+            overlap=CHUNK_OVERLAP
+        )
+
+    elif CHUNKING_STRATEGY == "recursive":
+        chunker = RecursiveChunker(
+            tokenizer_name=EMBEDDING_MODEL,
+            chunk_size=CHUNK_SIZE,
+            overlap=CHUNK_OVERLAP
+        )
+
+    elif CHUNKING_STRATEGY == "semantic":
+        chunker = SemanticAwareChunker(
+            embedder=embedder,
+            breakpoint_threshold_type="percentile",
+            breakpoint_threshold_amount=95.0
+        )
+
+    else:
+        raise ValueError(f"Unknown Chunking Strategy {CHUNKING_STRATEGY}")
 
     # 1. Parse PDF Document
     document = parser.parse(file_path=file_path)
