@@ -17,7 +17,7 @@ class TokenChunker:
         step_size = self.chunk_size - self.overlap # Skip every n token in loop (i.e. chunk=384 overlap 64 skip every 320 token for each loop cycle)
 
         for page in document.pages:
-            token_ids = self.tokenizer.encode( # Token Embedding
+            token_ids = self.tokenizer.encode( # Tokenization, change token words into numbers, the numbers are then fed to form embeddings. add_special_tokens mean add special chars like <EOS> <BOS> <CLS> etc into the sentence
                 page.text,
                 add_special_tokens=False
             )
@@ -34,7 +34,7 @@ class TokenChunker:
                 if not chunk_tokens:
                     continue
 
-                chunk_text = self.tokenizer.decode(
+                chunk_text = self.tokenizer.decode( # Detokenization, convert token ID back into token words. skip_special_tokens mean skip special chars like <EOS> <BOS> <CLS> etc
                     chunk_tokens,
                     skip_special_tokens=True
                 )

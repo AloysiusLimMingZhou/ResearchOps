@@ -34,8 +34,8 @@ class PdfParser:
     def _generate_document_id(self, path: Path) -> str: # Generate a unique hash of the document with SHA 256
         hasher = hashlib.sha256()
 
-        with path.open('rb') as file:
-            while chunk := file.read(8192):
-                hasher.update(chunk)
+        with path.open('rb') as file: # Convert the pdf into raw bytes via 'rb' read binary
+            while chunk := file.read(8192): # For every 8192 bytes of pdf data, chunk it and append it into a SHA256 object. We don't load whole pdf at once to save memory, so we break the pdf into chunks of 8192 bytes and append that chunk into SHA256
+                hasher.update(chunk) # Append the chunk into hasher. [0-8192, 8193-16384,...]
 
         return hasher.hexdigest()

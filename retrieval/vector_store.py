@@ -10,18 +10,18 @@ class VectorStore:
     def create_collection(self, vector_size:int) -> None:
         if self.client.collection_exists(self.collection_name): return # If collection, which is table in vector database term exist, then skip this process
 
-        self.client.create_collection( # Else, create a collection which is a table in vector db term and use cosine distance between the embeddings
+        self.client.create_collection( # Else, create a collection which is a SQL table in vector db term and use cosine distance between the embeddings
             collection_name=self.collection_name,
-            vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE)
+            vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE) # Vector size is the size of Vector DB, usually we'd like it to be the same as embedding dimension. Cosine distance is used to compare query vector & stored vector
         )
 
-    def upsert(self, chunks:list[Chunk], vectors:list[list[float]]): # Upload chunks into the vector db where points represents rows in vector db
+    def upsert(self, chunks:list[Chunk], vectors:list[list[float]]): # Upsert is SQL INSERT chunks into the vector db where points represents SQL rows in vector db
         points = []
         for chunk, vector in zip(chunks, vectors, strict=True):
-            points.append(PointStruct(
+            points.append(PointStruct( # PointStruct is like SQL Schema (i.e. for SQL table u have primary key, columns, etc) but for vector db. It has point (row) id, vector (data), payload (metadata)
                 id=chunk.chunk_id,
                 vector=vector,
-                payload={
+                payload={ # JSON Metadata
                     "document_id": chunk.document_id,
                     "filename": chunk.filename,
                     "page_number": chunk.page_number,
@@ -37,7 +37,7 @@ class VectorStore:
             collection_name=self.collection_name,
             query=query_vector,
             limit=limit,
-            with_payload=True
+            with_payload=True # Metadata Filter, include metadata basically
         )
 
         return result.points
