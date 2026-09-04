@@ -2,29 +2,33 @@ import argparse
 import re
 from embeddings.embedder import Embedder
 from evaluation.retrieval_eval import evaluate
-from ingestion.chunker import TokenChunker, RecursiveChunker, SemanticAwareChunker
+from ingestion.chunker import TokenChunker, RecursiveChunker, SemanticAwareChunker, SemanticRecursiveChunker
 from ingestion.cleaner import TextCleaner
 from ingestion.parser import PdfParser
 from retrieval.retriever import Retriever
 from retrieval.vector_store import VectorStore
 
-CHUNKING_STRATEGY = "semantic"
+CHUNKING_STRATEGY = "semantic_recursive"
 EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 CHUNK_SIZE = 256
 CHUNK_OVERLAP = 64
+BREAKPOINT_THRESHOLD_AMOUNT = 95.0
 
 def slugify(value:str) -> str:
     value = value.lower()
     value = re.sub(r"[^a-z0-9]+", "-", value)
     return value.strip("-")
 
-def build_collection_name(chunking_strategy:str, chunk_size:int, chunk_overlap:int, embedding_model:str) -> str:
+def build_collection_name(chunking_strategy:str, threshould_amount:float, chunk_size:int, chunk_overlap:int, embedding_model:str) -> str:
     strategy = slugify(chunking_strategy)
     model = slugify(embedding_model)
 
+    if CHUNKING_STRATEGY == "semantic_recursive" or CHUNKING_STRATEGY == "semantic":
+        return f"researchops_{strategy}_threshould{threshould_amount}chunk{chunk_size}_overlap{chunk_overlap}_{model}"
+
     return f"researchops_{strategy}_chunk{chunk_size}_overlap{chunk_overlap}_{model}"
 
-COLLECTION_NAME = build_collection_name(chunking_strategy=CHUNKING_STRATEGY, chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP, embedding_model=EMBEDDING_MODEL)
+COLLECTION_NAME = build_collection_name(chunking_strategy=CHUNKING_STRATEGY, threshould_amount=BREAKPOINT_THRESHOLD_AMOUNT, chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP, embedding_model=EMBEDDING_MODEL)
 
 def build_components():
     embedder = Embedder(model_name=EMBEDDING_MODEL)
@@ -57,7 +61,17 @@ def ingest(file_path:str):
         chunker = SemanticAwareChunker(
             embedder=embedder,
             breakpoint_threshold_type="percentile",
-            breakpoint_threshold_amount=95.0
+            breakpoint_threshold_amount=BREAKPOINT_THRESHOLD_AMOUNT
+        )
+
+    elif CHUNKING_STRATEGY == "semantic_recursive":
+        chunker = SemanticRecursiveChunker(
+            embedder=embedder,
+            tokenizer_name=EMBEDDING_MODEL,
+            chunk_size=CHUNK_SIZE,
+            overlap=CHUNK_OVERLAP,
+            breakpoint_threshold_type="percentile",
+            breakpoint_threshold_amount=BREAKPOINT_THRESHOLD_AMOUNT
         )
 
     else:
