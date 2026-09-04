@@ -15,9 +15,9 @@ def evaluate(retriever:Retriever, dataset_path:str):
     hit_sums = {k: 0 for k in K_VALUES} # Create a dict with k = 0 for hit@1, hit@3, hit@5 (i.e. {hit@1: 0, hit@3: 0, hit@5: 0}). If expected chunks hit top 1 retrieved result, hit@1 += 1. 
                                         # hit@k calculates if there's relevant chunks in top k retrieved chunks. (i.e. Query 1 has relevant chunk in 1st retrieved chunk, hit@1 = 1, else hit@1 = 0)
     
-    precision_sums = {k: 0.0 for k in K_VALUES} # Same as hit_sums but for precision@1, precision@3, precision@5. 
-                                                # precision@k is calculate percentage of relevant chunks among all k chunks retrieved. (relevant_chunks / k). 
-                                                # (i.e. top 5 chunks only 2 chunks are relevant based on filename & page number, then 2/5 = 40% Precision@5)
+    page_precision_sums = {k: 0.0 for k in K_VALUES} # Same as hit_sums but for PagePrecision@1, PagePrecision@3, PagePrecision@5. 
+                                                # PagePrecision@k is calculate percentage of relevant chunks among all k chunks retrieved. (relevant_chunks / k). 
+                                                # (i.e. top 5 chunks only 2 chunks are relevant based on filename & page number, then 2/5 = 40% PagePrecision@5)
     
     page_recall_sums = {k: 0.0 for k in K_VALUES} # Same as hit_sums but for page_recall@1, page_recall@3, page_recall@5. 
                                                   # page_recall@k is calculate percentage of relevant retrieved chunks among all possible relevant chunks (top_k_relevant_chunks / total_relevant_chunks). (i.e. relevant_pages = {4, 5, 6}, top_k_chunks = {4, 5, 4, 5, 2}, among 5 chunks, 2 unique ones hit. So 2/3 = 67% PagedRecall@5)
@@ -55,14 +55,14 @@ def evaluate(retriever:Retriever, dataset_path:str):
             # i.e. k = 3, top_3_result = results[:3] which only give 3 result since running index starts at 1
             # Check if the top_3_result chunk passes relevant check (if the chunks filename & pages are the same as the expected ones)
             # If lets say 2 of the 3 chunks are relevant which has the same filename & page as expected retrieved answer, and the expected relevant pages only has 2
-            # hit@3 += 1, precision@3 += 2/3, recall@3 += 2/2
+            # hit@3 += 1, PagePrecision@3 += 2/3, recall@3 += 2/2
 
             # Hit@K
             if relevant_results:
                 hit_sums[k] += 1
 
-            # Precision@K
-            precision_sums[k] += (len(relevant_results) / k)
+            # PagePrecision@K
+            page_precision_sums[k] += (len(relevant_results) / k)
 
             # Page-Level Recall@K
             retrieved_relevant_pages = {
@@ -96,7 +96,7 @@ def evaluate(retriever:Retriever, dataset_path:str):
         print(f"Hit@{k}: {hit_sums[k] / total:.3f}")
 
         print(
-            f"Precision@{k}: {precision_sums[k] / total:.3f}")
+            f"PagePrecision@{k}: {page_precision_sums[k] / total:.3f}")
 
         print(
             f"PageRecall@{k}: {page_recall_sums[k] / total:.3f}")
