@@ -8,8 +8,8 @@ from ingestion.parser import PdfParser
 from retrieval.retriever import Retriever
 from retrieval.vector_store import VectorStore
 
-CHUNKING_STRATEGY = "semantic_recursive"
-EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
+CHUNKING_STRATEGY = "recursive"
+EMBEDDING_MODEL = "BAAI/bge-m3"
 CHUNK_SIZE = 256
 CHUNK_OVERLAP = 64
 BREAKPOINT_THRESHOLD_AMOUNT = 95.0

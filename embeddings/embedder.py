@@ -14,4 +14,5 @@ class Embedder:
 
     def embed_query(self, query:str) -> list[float]: # Embed the queries from user
         embeddings = self.model.encode_query(query, normalize_embeddings=True)
+        print(self.model.prompts)
         return embeddings.tolist()
